@@ -1,0 +1,11 @@
+# Source List — HDFC Mutual Fund FAQ RAG
+
+Public sources only (per PRD NFR-2).
+
+| Name | Scheme Type | Source Type | URL | Status | Fetched At |
+|---|---|---|---|---|---|
+| HDFC Large Cap Fund - Direct Growth | large-cap | scheme | https://groww.in/mutual-funds/hdfc-large-cap-fund-direct-growth | ok | 2026-09-01T08:36:34.367372+00:00 |
+| HDFC Flexi Cap Fund - Direct Growth | flexi-cap | scheme | https://groww.in/mutual-funds/hdfc-equity-fund-direct-growth | ok | 2026-09-01T08:36:34.708202+00:00 |
+| HDFC ELSS Tax Saver Fund - Direct Plan Growth | elss | scheme | https://groww.in/mutual-funds/hdfc-elss-tax-saver-fund-direct-plan-growth | ok | 2026-09-01T08:36:35.064265+00:00 |
+| HDFC Small Cap Fund - Direct Growth | small-cap | scheme | https://groww.in/mutual-funds/hdfc-small-cap-fund-direct-growth | ok | 2026-09-01T08:36:35.322009+00:00 |
+| HDFC Balanced Advantage Fund - Direct Growth | hybrid | scheme | https://groww.in/mutual-funds/hdfc-balanced-advantage-fund-direct-growth | ok | 2026-09-01T08:36:36.928207+00:00 |

@@ -1,0 +1,12 @@
+# requirements.txt
+#
+# RAG_based_Mutual_Fund_FAQ_Chatbot — runtime dependencies
+# (per docs/architecture.md: Google Gemini embeddings + generation via the
+#  google-genai SDK, ChromaDB vector store, Streamlit UI)
+#
+# Verified on: Python 3.14.7 / Windows. Install with:
+#   python -m pip install -r requirements.txt
+
+google-genai>=2.21.0      # Gemini SDK: gemini-embedding-001 embeddings + generate_content
+chromadb>=1.5.9           # local vector store (cosine), persistent to data/vector_db/chroma
+streamlit>=1.62.0         # tiny web UI (Groww palette)
