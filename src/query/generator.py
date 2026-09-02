@@ -277,6 +277,7 @@ class LocalGenerator:
 
         Anchors on the intent's own keyword(s) when known, else the earliest
         fact keyword in the chunk, else the first substantial line.
+        Returns a clean, single-sentence fact (not a raw page dump).
         """
         text = chunk.get("text", "")
         # Intent-specific anchor takes priority.
@@ -297,19 +298,41 @@ class LocalGenerator:
             if idx == -1:
                 continue
             if best is None or idx < best[0]:
-                best = (idx, text[idx: idx + 160])
+                best = (idx, self._snippet(text, idx))
         if best is None:
             first = next((ln.strip() for ln in text.splitlines()
                           if len(ln.strip()) > 20), None)
-            return (first or text)[:180]
-        return self._snippet(text, best[0])
+            return self._finish((first or text)[:180])
+        return best[1]
 
     @staticmethod
-    def _snippet(text: str, idx: int, width: int = 180) -> str:
-        snippet = text[idx: idx + width].replace("\n", " ").strip()
+    def _finish(snippet: str) -> str:
+        """Ensure the snippet reads as one complete sentence ending in a period."""
+        snippet = snippet.strip()
+        if snippet and not snippet.endswith((".", "!", "?")):
+            snippet += "."
+        return snippet
+
+    @staticmethod
+    def _snippet(text: str, idx: int, width: int = 140) -> str:
+        """Pull a fact window from ``idx``, stopping at a clean boundary.
+
+        Stops before a newline or a known field-label boundary so unrelated
+        facts (e.g. "Expense ratio", "Fund size") don't run together.
+        """
+        window = text[idx: idx + width]
+        boundary = re.search(
+            r"\s+(?=Expense Ratio|Expense ratio|Fund size|Exit load|"
+            r"Lock-in|Benchmark|Riskometer|Minimum Lumpsum|Min\. for Lumpsum|"
+            r"Rating\b|AUM\b)",
+            window,
+        )
+        if boundary:
+            window = window[: boundary.start()]
+        snippet = window.replace("\n", " ").strip()
         snippet = re.sub(r"\s+", " ", snippet)
-        snippet = re.sub(r"\.{4,}", " ", snippet)
-        return snippet[:180]
+        snippet = re.sub(r"\.{4,}", " ", snippet).strip()
+        return LocalGenerator._finish(snippet)
 
     def _select_best(self, question: str, chunks: list[dict]) -> dict | None:
         """Pick the chunk whose terms best overlap the question (W1).
