@@ -140,7 +140,7 @@ pip install -r requirements.txt
 Create a `.env` file in the project root:
 
 ```
-GEMINI_API_KEY=your_gemini_api_key_here
+GOOGLE_API_KEY=your_google_api_key_here
 GEMINI_MODEL=gemini-3.6-flash
 GEMINI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
 ```
@@ -190,7 +190,7 @@ python -m src.query.generator "question" [--force-llm]   # Phase 7
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `GEMINI_API_KEY` | — | Google Gemini API key (required) |
+| `GOOGLE_API_KEY` | — | Google Gemini API key (required) |
 | `GEMINI_MODEL` | `gemini-3.6-flash` | LLM model for generation |
 | `GEMINI_EMBEDDING_MODEL` | `gemini-embedding-001` | Embedding model |
 | `GEMINI_EMBEDDING_DIM` | `768` | Vector dimensionality |

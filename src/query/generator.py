@@ -14,7 +14,7 @@ answer:
 Backends behind one facade:
 
 1. **LLM backend** (``GeminiGenerator``): calls Gemini via the google-genai
-   SDK (``generate_text`` in src/gemini.py). Requires ``GEMINI_API_KEY``.
+   SDK (``generate_text`` in src/gemini.py). Requires ``GOOGLE_API_KEY``.
 2. **Local backend** (``LocalGenerator``): deterministic extraction fallback
    used only if the LLM call fails (network/API error).
 
@@ -196,7 +196,7 @@ _STOPWORDS = {
 class GeminiGenerator:
     """Gemini generateContent client built on the google-genai SDK.
 
-    Reads GEMINI_API_KEY / GEMINI_MODEL / GEMINI_BASE_URL from config/.env.
+    Reads GOOGLE_API_KEY / GEMINI_MODEL / GEMINI_BASE_URL from config/.env.
     """
 
     def __init__(self, model: str | None = None, api_key: str | None = None,
@@ -210,7 +210,7 @@ class GeminiGenerator:
     def complete(self, messages: list[dict]) -> str:
         """Call Gemini with OpenAI-style [system, user] messages."""
         if not self.api_key:
-            raise LLMError("No Gemini API key configured (GEMINI_API_KEY).")
+            raise LLMError("No Gemini API key configured (GOOGLE_API_KEY).")
         system, user = _split_messages(messages)
         return generate_text(system, user)
 
@@ -436,7 +436,7 @@ def generate(question: str, retrieve: Callable, *,
         if reason in ("embedding_unavailable", "vector_store_unavailable"):
             message = (
                 "I couldn't run the semantic search for that question right now "
-                f"(retrieval unavailable: '{reason}'). Make sure GEMINI_API_KEY "
+                f"(retrieval unavailable: '{reason}'). Make sure GOOGLE_API_KEY "
                 "is set and the vector index has been built "
                 "(python -m src.ingest.build_index). "
                 f"For mutual fund basics, please see: {config.EDUCATIONAL_LINK}"
@@ -532,7 +532,7 @@ def main() -> None:
     retriever = Retriever(top_k=args.k, min_score=args.min_score)
     if args.force_llm:
         if not os.environ.get(config.GEMINI_API_KEY_ENV):
-            print("[generator] --force-llm requested but no GEMINI_API_KEY set.")
+            print("[generator] --force-llm requested but no GOOGLE_API_KEY set.")
             sys.exit(1)
         gen = GeminiGenerator()
     else:

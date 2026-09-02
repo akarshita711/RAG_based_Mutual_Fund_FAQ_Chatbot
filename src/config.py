@@ -116,9 +116,9 @@ EMBEDDING_MODEL = os.environ.get(GEMINI_EMBEDDING_MODEL_ENV,
 EMBEDDING_DIM = int(os.environ.get("GEMINI_EMBEDDING_DIM", "768"))
 
 # Optional LLM backend. The default is Google Gemini via google-genai SDK.
-# Activates when GEMINI_API_KEY is set; otherwise retrieval/embedding is
+# Activates when GOOGLE_API_KEY is set; otherwise retrieval/embedding is
 # unavailable (no offline fallback without real embeddings).
-GEMINI_API_KEY_ENV = "GEMINI_API_KEY"
+GEMINI_API_KEY_ENV = "GOOGLE_API_KEY"
 GEMINI_MODEL_ENV = "GEMINI_MODEL"
 GEMINI_BASE_URL_ENV = "GEMINI_BASE_URL"
 LLM_MODEL = os.environ.get(GEMINI_MODEL_ENV, "gemini-3.6-flash")

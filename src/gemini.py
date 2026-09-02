@@ -79,7 +79,7 @@ def get_client():
 def _embed_batch(texts: list[str], task_type: str) -> list[list[float]]:
     client = get_client()
     if client is None:
-        raise LLMError("Gemini embeddings require GEMINI_API_KEY to be set.")
+        raise LLMError("Gemini embeddings require GOOGLE_API_KEY to be set.")
     if not texts:
         return []
 
@@ -140,7 +140,7 @@ def generate_text(system: str, user: str) -> str:
     """Generate a completion with system_instruction + user content."""
     client = get_client()
     if client is None:
-        raise LLMError("No Gemini API key configured (GEMINI_API_KEY).")
+        raise LLMError("No Gemini API key configured (GOOGLE_API_KEY).")
     try:
         response = client.models.generate_content(
             model=config.LLM_MODEL,
