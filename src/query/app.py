@@ -23,6 +23,16 @@ if ROOT not in sys.path:
 import streamlit as st  # noqa: E402
 
 from src import config  # noqa: E402
+
+# Streamlit Community Cloud exposes secrets via st.secrets, not os.environ.
+# Mirror them into the environment so config/gemini can find GOOGLE_API_KEY
+# the same way it does locally (where config.py loads it from .env).
+try:
+    for _k, _v in (dict(st.secrets) if hasattr(st, "secrets") else {}).items():
+        if isinstance(_v, str) and _k not in os.environ:
+            os.environ[_k] = _v
+except Exception:  # noqa: BLE001 - secrets access should never crash the app
+    pass
 from src.query.retriever import Retriever  # noqa: E402
 from src.query.generator import generate  # noqa: E402
 
