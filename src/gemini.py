@@ -28,6 +28,7 @@ from src import config  # noqa: E402
 EMBED_BATCH_SIZE = int(os.environ.get("GEMINI_EMBED_BATCH_SIZE", "8"))
 EMBED_BATCH_SLEEP = float(os.environ.get("GEMINI_EMBED_BATCH_SLEEP", "3"))
 _429_BACKOFF = [5, 10, 20, 40, 80]  # seconds between retries on RESOURCE_EXHAUSTED
+_GEN_BACKOFF = [3, 6, 10]  # shorter retry ladder for interactive generation
 
 
 class LLMError(RuntimeError):
@@ -141,22 +142,37 @@ def generate_text(system: str, user: str) -> str:
     client = get_client()
     if client is None:
         raise LLMError("No Gemini API key configured (GOOGLE_API_KEY).")
-    try:
-        response = client.models.generate_content(
-            model=config.LLM_MODEL,
-            contents=user,
-            config=types.GenerateContentConfig(
-                system_instruction=system,
-                temperature=config.LLM_TEMPERATURE,
-                max_output_tokens=1024,
-                automatic_function_calling=types.AutomaticFunctionCallingConfig(
-                    disable=True,
+    attempt = 0
+    while True:
+        try:
+            response = client.models.generate_content(
+                model=config.LLM_MODEL,
+                contents=user,
+                config=types.GenerateContentConfig(
+                    system_instruction=system,
+                    temperature=config.LLM_TEMPERATURE,
+                    max_output_tokens=1024,
+                    automatic_function_calling=types.AutomaticFunctionCallingConfig(
+                        disable=True,
+                    ),
                 ),
-            ),
-        )
-    except Exception as exc:  # noqa: BLE001 - normalize SDK failures
-        raise LLMError(f"Gemini generate_content failed: "
-                       f"{type(exc).__name__}: {exc}") from exc
+            )
+            break
+        except errors.APIError as exc:
+            # Transient 429 (rate limit) / 503 (high demand): back off and retry.
+            code = getattr(exc, "code", None)
+            if code in (429, 503) and attempt < len(_GEN_BACKOFF):
+                wait = _GEN_BACKOFF[attempt]
+                print(f"[gemini] generate_content {code}; backoff {wait}s",
+                      file=sys.stderr)
+                time.sleep(wait)
+                attempt += 1
+                continue
+            raise LLMError(f"Gemini generate_content failed: "
+                           f"{type(exc).__name__}: {exc}") from exc
+        except Exception as exc:  # noqa: BLE001 - normalize SDK failures
+            raise LLMError(f"Gemini generate_content failed: "
+                           f"{type(exc).__name__}: {exc}") from exc
     text = (getattr(response, "text", None) or "").strip()
     if not text:
         raise LLMError("Gemini returned an empty response.")
